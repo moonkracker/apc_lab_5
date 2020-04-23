@@ -5,7 +5,6 @@
 #define E7 2637
 #define Fd7 2960
 #define box 100
-#define AlarmCount 14
 
 /* Время задержки */
 unsigned int delayTime = 0;
@@ -49,33 +48,28 @@ void interrupt newAlarm(...)
 	resetAlarm();
 }
 
-/*Мелодия будильника*/
+/*Мелодия будильника - в таком формате, так как не хотело работать с циклом, 
+возможно что-то не так с dos, но работоспособность проверена на  MSDOS 6.22*/
 void Alarm() {
-	int frequency[AlarmCount] = { E7, E7, Fd7, E7, E7, Fd7, E7, E7, E7, E7, Fd7, E7, Fd7, E7 };
-	disable();
-	int durability[AlarmCount] = { box, box, box, box, box, box, box, box, box, box, box, box, box, box };
-	int delayCounter[AlarmCount] = { box, box, box, box, 0, 0, 5 * box, box, box, box, box, 0, 0, 0 };
-	long unsigned base = 1193180;
-	int frequencyCounter;
-	int divisionCoefficient;
-
-	for (frequencyCounter = 0; frequencyCounter < AlarmCount; frequencyCounter++)
-	{
-		outp(0x43, 0xB6);
-		divisionCoefficient = base / frequency[frequencyCounter];
-		outp(0x42, divisionCoefficient % 256);									//Low
-		divisionCoefficient /= 256;												//Pause
-		outp(0x42, divisionCoefficient);										//High
-		outp(0x61, inp(0x61) | 3);                                              //Turn on    
-		delay(durability[frequencyCounter], 0);                                 //Wait
-		outp(0x61, inp(0x61) & 0xFC);									        //Turn off
-		delay(delayCounter[frequencyCounter], 0);					         	//Delay
-	}
-	enable();
+	sound(E7); 	delay(box); 	nosound(); 	delay(box);
+	sound(E7); 	delay(box);	nosound(); 	delay(box);
+	sound(Fd7); 	delay(box); 	nosound(); 	delay(box);
+	sound(E7); 	delay(box); 	nosound(); 	delay(box);
+	sound(E7); 	delay(box); 	nosound(); 	delay(0);
+	sound(Fd7); 	delay(box); 	nosound(); 	delay(0);
+	sound(E7); 	delay(box); 	nosound(); 	delay(5*box);
+	sound(E7); 	delay(box); 	nosound(); 	delay(box);
+	sound(E7); 	delay(box); 	nosound(); 	delay(box);
+	sound(E7); 	delay(box); 	nosound(); 	delay(box);
+	sound(Fd7); 	delay(box); 	nosound(); 	delay(box);
+	sound(E7); 	delay(box); 	nosound(); 	delay(0);
+	sound(Fd7); 	delay(box); 	nosound(); 	delay(0);
+	sound(E7); 	delay(box); 	nosound(); 	delay(0);
 }
 
 int main()
 {
+	clrscr();
 	int delayMillisecond;
 	while (1) {
 		printf("1 - Current time\n");
